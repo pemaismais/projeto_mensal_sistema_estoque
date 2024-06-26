@@ -366,8 +366,8 @@ public class JFrameProduto extends javax.swing.JFrame {
         // caso esse frame produto seja criado por consulta, ele pega o id e fecha 
         if (jFrameEntrada != null || jFrameSaida != null) {
             ArrayList<Integer> ids = util.pegarIdsSelecionadosDaTable(tableProduto);
-            ArrayList<String> preco = util.pegarStringsSelecionadasDaTable(tableProduto, 2);
-            ArrayList<String> tipo = util.pegarStringsSelecionadasDaTable(tableProduto, 4);
+            ArrayList<String> preco = util.pegarStringsSelecionadasDaTable(tableProduto, 1);
+            ArrayList<String> tipo = util.pegarStringsSelecionadasDaTable(tableProduto, 3);
             // se tiver apenas um selecionado
             if (ids.size() == 1) {
                 if(this.jFrameEntrada != null){

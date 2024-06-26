@@ -172,6 +172,11 @@ public class JFrameFornecedor extends javax.swing.JFrame {
 
         JTextFieldCep.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         JTextFieldCep.setToolTipText("Somente os numeros");
+        JTextFieldCep.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                JTextFieldCepActionPerformed(evt);
+            }
+        });
         JTextFieldCep.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 autoCompletarCEP(evt);
@@ -542,6 +547,10 @@ public class JFrameFornecedor extends javax.swing.JFrame {
         jButtonConsultarCnpjCpf.setIcon(IconFontSwing.buildIcon(FontAwesome.SEARCH, 16, Color.black));
         jButtonCarregarTodosProdutos.setIcon(IconFontSwing.buildIcon(FontAwesome.BARS, 16, Color.black));
     }//GEN-LAST:event_formWindowOpened
+
+    private void JTextFieldCepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JTextFieldCepActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_JTextFieldCepActionPerformed
 
     /**
      * @param args the command line arguments
