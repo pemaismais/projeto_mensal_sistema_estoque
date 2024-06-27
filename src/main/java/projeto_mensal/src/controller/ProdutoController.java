@@ -111,13 +111,8 @@ public class ProdutoController {
                 produto.setPreco(produtoDTO.precoParaFloat());
                 produto.setTipo(produtoDTO.getTipo());
 
-                if (produtoDAO.alterar(produto)) {
-                    JOptionPane.showMessageDialog(null, "Alteração feita com sucesso");
+                produtoDAO.alterar(produto);
                     return true;
-                } else {
-                    JOptionPane.showMessageDialog(null, "ERRO na comunicaçao com o DB");
-                    return false;
-                }
             } else {
                 JOptionPane.showMessageDialog(null, "Erro ao processar ingrediente: " + resultado.getMensagem());
                 return false;

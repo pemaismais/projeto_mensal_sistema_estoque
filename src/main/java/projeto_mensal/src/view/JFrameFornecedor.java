@@ -75,6 +75,7 @@ public class JFrameFornecedor extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Fornecedor");
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -424,6 +425,7 @@ public class JFrameFornecedor extends javax.swing.JFrame {
         FornecedorDTO fornecedorDTO = new FornecedorDTO(cnpjcpf, nome, cep, telefone, uf, cidade, bairro, logradouro);
 
         if (fornecedorController.cadastrar(fornecedorDTO)) {
+            JOptionPane.showMessageDialog(null, "Fornecedor cadastrado!");
             resetarCampos();
         }
     }//GEN-LAST:event_enviar
@@ -480,6 +482,7 @@ public class JFrameFornecedor extends javax.swing.JFrame {
                 FornecedorDTO fornecedorDTO = new FornecedorDTO(id, cnpjcpf, nome, cep, telefone, uf, cidade, bairro, logradouro);
 
                 if (fornecedorController.alterar(fornecedorDTO)) {
+                    JOptionPane.showMessageDialog(null, "Fornecedor alterado!");
                     resetarCampos();
                 }
             }

@@ -50,7 +50,11 @@ public class JFrameEstoque extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Estoque");
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
             }
@@ -95,7 +99,7 @@ public class JFrameEstoque extends javax.swing.JFrame {
         jButtonConsultarId.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonConsultarId.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonConsultarIdcarregarProdutosPorId(evt);
+                consultarPorId(evt);
             }
         });
 
@@ -110,7 +114,7 @@ public class JFrameEstoque extends javax.swing.JFrame {
         jButtonConsultarNome.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonConsultarNome.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonConsultarNomecarregarProdutosPorNome(evt);
+                consultarPorNome(evt);
             }
         });
 
@@ -208,30 +212,33 @@ public class JFrameEstoque extends javax.swing.JFrame {
 
     }
     private void tableProdutoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableProdutoMouseClicked
-        // caso esse frame produto seja criado por consulta, ele pega o id e fecha
     }//GEN-LAST:event_tableProdutoMouseClicked
 
-    private void jButtonConsultarIdcarregarProdutosPorId(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConsultarIdcarregarProdutosPorId
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonConsultarIdcarregarProdutosPorId
+    private void consultarPorId(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consultarPorId
+        String id = jTextFieldId.getText();
+        estoqueController.carregarProdutosPeloIdParaTabela(id,tableProduto);
+    }//GEN-LAST:event_consultarPorId
 
-    private void jButtonConsultarNomecarregarProdutosPorNome(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonConsultarNomecarregarProdutosPorNome
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jButtonConsultarNomecarregarProdutosPorNome
+    private void consultarPorNome(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consultarPorNome
+        String nome = jTextFieldNome.getText();
+        estoqueController.carregarProdutosPeloNomeParaTabela(nome,tableProduto);
+    }//GEN-LAST:event_consultarPorNome
 
     private void carregarTodosProdutos(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_carregarTodosProdutos
-        // TODO add your handling code here:
         estoqueController.carregarTodosProdutosParaTabela(tableProduto);
     }//GEN-LAST:event_carregarTodosProdutos
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        // TODO add your handling code here:
         IconFontSwing.register(FontAwesome.getIconFont());
         jButtonConsultarId.setIcon(IconFontSwing.buildIcon(FontAwesome.SEARCH, 16, Color.black));
         jButtonConsultarNome.setIcon(IconFontSwing.buildIcon(FontAwesome.SEARCH, 16, Color.black));
         jButtonListarTodos.setIcon(IconFontSwing.buildIcon(FontAwesome.BARS, 16, Color.black));
     }//GEN-LAST:event_formWindowOpened
+
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        this.dispose();
+        home.setVisible(true);
+    }//GEN-LAST:event_formWindowClosed
 
     /**
      * @param args the command line arguments

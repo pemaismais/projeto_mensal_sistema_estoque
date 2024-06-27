@@ -11,8 +11,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import static org.hibernate.criterion.Projections.id;
 import projeto_mensal.src.model.Entrada;
 import projeto_mensal.src.model.ItemEntrada;
 

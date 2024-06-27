@@ -88,6 +88,7 @@ public class JFrameProduto extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Produto");
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -366,7 +367,7 @@ public class JFrameProduto extends javax.swing.JFrame {
         // caso esse frame produto seja criado por consulta, ele pega o id e fecha 
         if (jFrameEntrada != null || jFrameSaida != null) {
             ArrayList<Integer> ids = util.pegarIdsSelecionadosDaTable(tableProduto);
-            ArrayList<String> preco = util.pegarStringsSelecionadasDaTable(tableProduto, 1);
+            ArrayList<String> preco = util.pegarStringsSelecionadasDaTable(tableProduto, 2);
             ArrayList<String> tipo = util.pegarStringsSelecionadasDaTable(tableProduto, 3);
             // se tiver apenas um selecionado
             if (ids.size() == 1) {
@@ -423,6 +424,7 @@ public class JFrameProduto extends javax.swing.JFrame {
                 String tipo = JComboBoxTipo.getSelectedItem().toString();
                 ProdutoDTO produtoDTO = new ProdutoDTO(id, nome, preco, tipo);
                 if (produtoController.alterar(produtoDTO)) {
+                    JOptionPane.showMessageDialog(null, "Produto alterado!");
                     resetarCampos();
                 }
             }
@@ -438,6 +440,7 @@ public class JFrameProduto extends javax.swing.JFrame {
         ProdutoDTO produtoDTO = new ProdutoDTO(nome, preco, tipo);
 
         if (produtoController.cadastrar(produtoDTO)) {
+            JOptionPane.showMessageDialog(null, "Produto cadastrado!");
             resetarCampos();
         }
     }//GEN-LAST:event_enviar

@@ -6,6 +6,7 @@ package projeto_mensal.src.controller;
 
 import projeto_mensal.src.utils.ResultadoValidacao;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,7 +32,7 @@ public class SaidaController {
         this.saidaDAO = new SaidaDAO();
     }
 
-    public ResultadoValidacao validar(String quantidadeStr, String IdProduto) {
+    public ResultadoValidacao validar(String quantidadeStr, String IdProduto, String data) {
         ResultadoValidacao resultado = new ResultadoValidacao(); // Cria um objeto para armazenar o resultado da validação
 
         if (quantidadeStr.contains(",")) {
@@ -70,16 +71,25 @@ public class SaidaController {
             resultado.setMensagem("Erro de comunicação com o db:" + e.getMessage());
             return resultado;
         }
+        // verificando se a data ta certa
+        try {
+            Utils.formatarStringParaData(data);
+        } catch (ParseException e) {
+            resultado.setValido(false);
+            resultado.setMensagem("Insira uma data/horario válida");
+            return resultado;
+        }
+
         // verificando se a quantidade é menor que o estoque
         int id = Integer.parseInt(IdProduto);
         float quantidade = Float.parseFloat(quantidadeStr);
         EstoqueController estoqueController = new EstoqueController();
         float estoque = estoqueController.consultarSaldoEstoque(id);
 
-        if(quantidade> estoque){
+        if (quantidade > estoque) {
             resultado.setValido(false);
-                resultado.setMensagem("Estoque insuficiente");
-                return resultado;
+            resultado.setMensagem("Estoque insuficiente");
+            return resultado;
         }
         // Se passar por todas as verificações, define o resultado como válido e retorna
         resultado.setValido(true);
@@ -97,7 +107,7 @@ public class SaidaController {
                 for (Saida saida : saidas) {
                     String produto = saida.getIdProduto() + " " + saida.getNomeProduto();
                     String valorTotal = String.format("%.02f", saida.getValorTotal());
-                    String data = Utils.formatarData(saida.getDataSaida());
+                    String data = Utils.formatarDataParaString(saida.getDataSaida());
                     model.addRow(new Object[]{saida.getId(), data, produto, saida.getQuantidade(), valorTotal});
                 }
             }
@@ -106,18 +116,19 @@ public class SaidaController {
         }
     }
 
-    public boolean cadastrar(String quantidadeStr, String IdProdutoStr) {
+    public boolean cadastrar(String quantidadeStr, String IdProdutoStr, String dataStr) {
         try {
-            ResultadoValidacao resultado = validar(quantidadeStr, IdProdutoStr);
+            ResultadoValidacao resultado = validar(quantidadeStr, IdProdutoStr, dataStr);
             if (resultado.isValido()) {
                 ProdutoDAO produtoDAO = new ProdutoDAO();
 
                 int IdProduto = Integer.parseInt(IdProdutoStr);
                 float quantidade = Float.parseFloat(quantidadeStr);
+                Date data = Utils.formatarStringParaData(dataStr);
 
                 Produto produto = produtoDAO.selectById(IdProduto);
                 Saida saida = new Saida();
-                saida.setDataSaida(new Date());
+                saida.setDataSaida(data);
                 ItemSaida itemSaida = new ItemSaida(saida, produto, quantidade);
                 saida.setItem(itemSaida);
 
@@ -127,15 +138,15 @@ public class SaidaController {
                 JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultado.getMensagem());
                 return false;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return false;
         }
     }
 
-    public boolean alterar(int id, String quantidadeStr, String IdProdutoStr) {
+    public boolean alterar(int id, String quantidadeStr, String IdProdutoStr, String dataStr) {
         try {
-            ResultadoValidacao resultado = validar(quantidadeStr, IdProdutoStr);
+            ResultadoValidacao resultado = validar(quantidadeStr, IdProdutoStr, dataStr);
             if (resultado.isValido()) {
                 // todo
             } else {
@@ -146,24 +157,19 @@ public class SaidaController {
             // transformando as strings
             float quantidade = Float.parseFloat(quantidadeStr);
             int idProduto = Integer.parseInt(IdProdutoStr);
+            Date data = Utils.formatarStringParaData(dataStr);
 
             Produto produto = produtoDAO.selectById(idProduto);
             Saida saida = saidaDAO.selectById(id);
 
-            saida.setDataSaida(new Date());
+            saida.setDataSaida(data);
             ItemSaida itemSaida = new ItemSaida(saida, produto, quantidade);
             saidaDAO.removerItem(id);
             saida.setItem(itemSaida);
 
-            if (!saidaDAO.alterar(saida)) {
-                JOptionPane.showMessageDialog(null, " Erro ao alterar Receita no DB ");
-                return false;
-            } else {
-                JOptionPane.showMessageDialog(null, " Receita alterada com sucesso!");
-                return true;
-            }
-
-        } catch (SQLException e) {
+            saidaDAO.alterar(saida);
+            return true;
+        } catch (SQLException | ParseException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return false;
         }

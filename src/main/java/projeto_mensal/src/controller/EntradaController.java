@@ -6,6 +6,7 @@ package projeto_mensal.src.controller;
 
 import projeto_mensal.src.utils.ResultadoValidacao;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +34,7 @@ public class EntradaController {
         entradaDAO = new EntradaDAO();
     }
 
-    public ResultadoValidacao validar(String quantidadeStr, String IdFornecedor, String IdProduto) {
+    public ResultadoValidacao validar(String quantidadeStr, String IdFornecedor, String IdProduto, String data) {
         ResultadoValidacao resultado = new ResultadoValidacao(); // Cria um objeto para armazenar o resultado da validação
 
         if (quantidadeStr.contains(",")) {
@@ -53,6 +54,7 @@ public class EntradaController {
             resultado.setMensagem("Valor da quantidade deve ser um número válido.");
             return resultado;
         }
+        //  verificando se o id do produto é valido
         try {
             int id = Integer.parseInt(IdProduto);
             ProdutoDAO produtoDAO = new ProdutoDAO();
@@ -68,7 +70,15 @@ public class EntradaController {
             return resultado;
         } catch (SQLException e) {
             resultado.setValido(false);
-            resultado.setMensagem("Erro de comunicação com o db:" + e.getMessage() );
+            resultado.setMensagem("Erro de comunicação com o db:" + e.getMessage());
+            return resultado;
+        }
+        // verificando se a data ta certa
+        try {
+            Utils.formatarStringParaData(data);
+        } catch (ParseException e) {
+            resultado.setValido(false);
+            resultado.setMensagem("Insira uma data/horario válida");
             return resultado;
         }
 
@@ -93,10 +103,10 @@ public class EntradaController {
 
                 for (Entrada entrada : entradas) {
                     String fornecedor = entrada.getIdFornecedor() + " " + entrada.getFornecedor().getNome();
-                    String produto = entrada.getIdProduto()   + " " + entrada.getNomeProduto();
+                    String produto = entrada.getIdProduto() + " " + entrada.getNomeProduto();
                     String valorTotal = String.format("%.02f", entrada.getValorTotal());
-                    String data = Utils.formatarData(entrada.getDataEntrada());
-                    model.addRow(new Object[]{entrada.getId(), data, produto, fornecedor , entrada.getQuantidade(), valorTotal});
+                    String data = Utils.formatarDataParaString(entrada.getDataEntrada());
+                    model.addRow(new Object[]{entrada.getId(), data, produto, fornecedor, entrada.getQuantidade(), valorTotal});
                 }
             }
         } catch (Exception e) {
@@ -104,9 +114,9 @@ public class EntradaController {
         }
     }
 
-    public boolean cadastrar(String quantidadeStr, String IdFornecedorStr, String IdProdutoStr) {
+    public boolean cadastrar(String quantidadeStr, String IdFornecedorStr, String IdProdutoStr, String dataStr) {
         try {
-            ResultadoValidacao resultado = validar(quantidadeStr, IdFornecedorStr, IdProdutoStr);
+            ResultadoValidacao resultado = validar(quantidadeStr, IdFornecedorStr, IdProdutoStr, dataStr);
             if (resultado.isValido()) {
                 ProdutoDAO produtoDAO = new ProdutoDAO();
                 FornecedorDAO fornecedorDAO = new FornecedorDAO();
@@ -114,11 +124,12 @@ public class EntradaController {
                 int IdFornecedor = Integer.parseInt(IdFornecedorStr);
                 int IdProduto = Integer.parseInt(IdProdutoStr);
                 float quantidade = Float.parseFloat(quantidadeStr);
+                Date data = Utils.formatarStringParaData(dataStr);
 
                 Fornecedor fornecedor = fornecedorDAO.selectById(IdFornecedor);
                 Produto produto = produtoDAO.selectById(IdProduto);
                 Entrada entrada = new Entrada();
-                entrada.setDataEntrada(new Date());
+                entrada.setDataEntrada(data);
                 entrada.setFornecedor(fornecedor);
                 ItemEntrada itemEntrada = new ItemEntrada(entrada, produto, quantidade);
                 entrada.setItem(itemEntrada);
@@ -129,48 +140,44 @@ public class EntradaController {
                 JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultado.getMensagem());
                 return false;
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ParseException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return false;
         }
     }
 
-    public boolean alterar(int id ,String quantidadeStr, String IdFornecedorStr, String IdProdutoStr) {
+    public boolean alterar(int id, String quantidadeStr, String IdFornecedorStr, String IdProdutoStr, String dataStr) {
         try {
-            ResultadoValidacao resultado = validar( quantidadeStr,  IdFornecedorStr,  IdProdutoStr);
+            ResultadoValidacao resultado = validar(quantidadeStr, IdFornecedorStr, IdProdutoStr, dataStr);
             if (resultado.isValido()) {
-           // todo
-            }else {
+                // todo
+            } else {
                 JOptionPane.showMessageDialog(null, "Erro ao processar dados: " + resultado.getMensagem());
                 return false;
             }
-              ProdutoDAO produtoDAO = new ProdutoDAO();
-              FornecedorDAO fornecedorDAO = new FornecedorDAO();
+            ProdutoDAO produtoDAO = new ProdutoDAO();
+            FornecedorDAO fornecedorDAO = new FornecedorDAO();
             // transformando as strings
             float quantidade = Float.parseFloat(quantidadeStr);
             int idFornecedor = Integer.parseInt(IdFornecedorStr);
             int idProduto = Integer.parseInt(IdProdutoStr);
-  
-               Fornecedor fornecedor = fornecedorDAO.selectById(idFornecedor);
-                Produto produto = produtoDAO.selectById(idProduto);
-                Entrada entrada = entradaDAO.selectById(id);
-                
-                entrada.setDataEntrada(new Date());
-                entrada.setFornecedor(fornecedor);
-                ItemEntrada itemEntrada = new ItemEntrada(entrada, produto, quantidade);
-                entradaDAO.removerItemEntrada(id);
-                // quando atualiza so a quantidade nao vaii
-                entrada.setItem(itemEntrada);
-                
-            if (!entradaDAO.alterar(entrada)) {
-            JOptionPane.showMessageDialog(null, " Erro ao alterar Receita no DB ");
-                return false;
-            } else {
-                JOptionPane.showMessageDialog(null, " Receita alterada com sucesso!");
-                return true;
-            }
 
-        } catch (SQLException e) {
+            Fornecedor fornecedor = fornecedorDAO.selectById(idFornecedor);
+            Produto produto = produtoDAO.selectById(idProduto);
+            Entrada entrada = entradaDAO.selectById(id);
+            Date data = Utils.formatarStringParaData(dataStr);
+
+            entrada.setDataEntrada(data);
+            entrada.setFornecedor(fornecedor);
+            ItemEntrada itemEntrada = new ItemEntrada(entrada, produto, quantidade);
+            entradaDAO.removerItemEntrada(id);
+            // quando atualiza so a quantidade nao vaii
+            entrada.setItem(itemEntrada);
+
+            entradaDAO.alterar(entrada);
+            return true;
+
+        } catch (SQLException | ParseException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             return false;
         }
@@ -188,62 +195,5 @@ public class EntradaController {
         }
         return sucesso;
     }
-//
-//    public void carregarReceitasDoEntradaParaTabela(JTable table, int idEntrada) {
-//        try {
-//            Entrada entrada = entradaDAO.selectById(idEntrada);
-//
-//            List<EntradaReceita> receitas = entrada.getReceitas();
-//
-//            DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-//            tableModel.setRowCount(0);
-//
-//            for (EntradaReceita receita : receitas) {
-//                Object[] dados = new Object[]{receita.getReceita().getId(), receita.getReceita().getNome(), receita.getReceita()};
-//                tableModel.addRow(dados);
-//            }
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, e.getMessage());
-//        }
-//    }
-//
-//    public void SelecionarReceitasDoEntradaNaTable(int idEntrada, JTable tableReceita) {
-//        try {
-//            Entrada entrada = entradaDAO.selectById(idEntrada);
-//            List<EntradaReceita> receitas = entrada.getReceitas();
-//            List<Integer> receitasIds = new ArrayList<>();
-//
-//            // pegando as receitas pelo id
-//            for (EntradaReceita entradaReceita : receitas) {
-//                receitasIds.add(entradaReceita.getReceita().getId());
-//            }
-//            // Selecionando as Ingredientes da receita que tao na table            
-//            for (int i = 0; i < tableReceita.getRowCount(); i++) {
-//                int id = (int) tableReceita.getValueAt(i, 0);
-//                if (receitasIds.contains(id)) {
-//                    tableReceita.addRowSelectionInterval(i, i);
-//                }
-//            }
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, e.getMessage());
-//        }
-//    }
-//
-//    public void receitasDoEntradaParaTable(JTable jTableReceitasEntrada, int idEntrada) {
-//        try {
-//            Entrada entrada = entradaDAO.selectById(idEntrada);
-//
-//            List<EntradaReceita> receitas = entrada.getReceitas();
-//            DefaultTableModel tableModel = (DefaultTableModel) jTableReceitasEntrada.getModel();
-//            tableModel.setRowCount(0);
-//
-//            for (EntradaReceita receita : receitas) {
-//                Object[] dados = new Object[]{receita.getReceita().getId(), receita.getReceita().getNome(), receita.getQuantidade(), receita.getReceita().getTipo()};
-//                tableModel.addRow(dados);
-//            }
-//        } catch (Exception e) {
-//            JOptionPane.showMessageDialog(null, e.getMessage());
-//        }
-//    }
 
 }

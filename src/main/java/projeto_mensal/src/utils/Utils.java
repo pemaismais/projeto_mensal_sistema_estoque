@@ -20,22 +20,21 @@ public class Utils {
 
     public Utils() {
     }
-    
-    public String pegarIdDaString(String string){
-               int posicaoDoEspaco = string.indexOf(" "); // pega a posicao do primeiro espaco q achar
+
+    public String pegarIdDaString(String string) {
+        int posicaoDoEspaco = string.indexOf(" "); // pega a posicao do primeiro espaco q achar
         String idString = string.substring(0, posicaoDoEspaco); // Extrair a parte do ID (como string)
         return idString;
     }
-    public static String formatarData(Date data){
+
+    public static String formatarDataParaString(Date data){
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        
-        // Formata a data usando o SimpleDateFormat
-        String dataStr = formatter.format(data);
-        return dataStr;
+            // Formata a data usando o SimpleDateFormat
+            String dataStr = formatter.format(data);
+            return dataStr;
     }
-    public static Date desformatarData(String dataStr){
-                
-        // Define o formato usado para formatar a data anteriormente
+
+    public static Date formatarStringParaData(String dataStr) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         try {
             // Parse da string para obter um objeto Date
@@ -43,16 +42,17 @@ public class Utils {
             return dataDesformatada;
         } catch (ParseException e) {
             e.printStackTrace();
-            return null;
+            throw new ParseException("Erro na conversão da data:" + e.getMessage(), e.getErrorOffset());
         }
     }
 
-    public String formatarString(String string){
+    public String formatarString(String string) {
         if (string.contains(",")) {
             string = string.replace(",", ".");
         }
         return string;
     }
+
     public String desformatarNumero(String numero) {
         return numero.replaceAll("[^0-9]", "");
     }
@@ -84,7 +84,7 @@ public class Utils {
         }
     }
 
-    public  String formatarCPF(String cpf) {
+    public String formatarCPF(String cpf) {
         // Verifica se o CPF já está no formato correto
         if (cpf.length() == 11) {
             return cpf.substring(0, 3) + "."
@@ -97,7 +97,7 @@ public class Utils {
         }
     }
 
-    public  String formatarCNPJ(String cnpj) {
+    public String formatarCNPJ(String cnpj) {
         // Verifica se o CNPJ já está no formato correto
         if (cnpj.length() == 14) {
             return cnpj.substring(0, 2) + "."
@@ -110,7 +110,8 @@ public class Utils {
             return cnpj;
         }
     }
-        public void limparCampos(Object[] components) {
+
+    public void limparCampos(Object[] components) {
         for (Object component : components) {
             if (component instanceof JComboBox) {
                 ((JComboBox<?>) component).setSelectedIndex(0); // Limpa a seleção do JComboBox
@@ -119,7 +120,8 @@ public class Utils {
             }
         }
     }
-            public void tableParaCampos(Object[] components, JTable table) {
+
+    public void tableParaCampos(Object[] components, JTable table) {
         Object value;
         for (int i = 0; i < components.length; i++) {
             value = table.getValueAt(table.getSelectedRow(), i);
@@ -171,6 +173,5 @@ public class Utils {
         }
         return values;
     }
-
 
 }

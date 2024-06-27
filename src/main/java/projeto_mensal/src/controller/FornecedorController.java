@@ -173,13 +173,8 @@ public class FornecedorController {
                 fornecedor.setBairro(fornecedorDTO.getBairro());
                 fornecedor.setLogradouro(fornecedorDTO.getLogradouro());
 
-                if (fornecedorDAO.alterar(fornecedor)) {
-                    JOptionPane.showMessageDialog(null, "Alteração feita com sucesso");
-                    return true;
-                } else {
-                    JOptionPane.showMessageDialog(null, "ERRO na comunicaçao com o DB");
-                    return false;
-                }
+                fornecedorDAO.alterar(fornecedor);
+                return true;
             } else {
                 JOptionPane.showMessageDialog(null, "Erro ao processar ingrediente: " + resultado.getMensagem());
                 return false;

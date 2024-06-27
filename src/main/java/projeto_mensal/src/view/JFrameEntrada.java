@@ -87,6 +87,7 @@ public class JFrameEntrada extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Entradas");
+        setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
                 formWindowClosed(evt);
@@ -193,14 +194,12 @@ public class JFrameEntrada extends javax.swing.JFrame {
 
         jTextFieldData.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jTextFieldData.setToolTipText("Quantidade em estoque");
-        jTextFieldData.setEnabled(false);
 
         jLabel25.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel25.setText("Horário");
 
         jTextFieldHorario.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jTextFieldHorario.setToolTipText("Quantidade em estoque");
-        jTextFieldHorario.setEnabled(false);
 
         jTextFieldPrecoMedio.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jTextFieldPrecoMedio.setToolTipText("Quantidade em estoque");
@@ -419,7 +418,8 @@ public class JFrameEntrada extends javax.swing.JFrame {
     private void resetarCampos() {
         util.limparCampos(new Object[]{jTextFieldQuantidade, jTextFieldProduto, jComboBoxFornecedor, jTextFieldData, jTextFieldHorario, jTextFieldPrecoMedio, jTextFieldPrecoTotal});
         //tableProduto.clearSelection();
-        carregarEntradasParaTabela();
+        //carregarEntradasParaTabela();
+        pegarHorarioEData();
         jLabel26.setText("Preço médio");
         DefaultTableModel model = (DefaultTableModel) tableEntrada.getModel();
         model.setRowCount(0);
@@ -435,7 +435,7 @@ public class JFrameEntrada extends javax.swing.JFrame {
         LocalDateTime hoje = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String dataFormatada = hoje.format(formatter);
-        formatter = DateTimeFormatter.ofPattern("HH:mm");
+        formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         String horarioFormatado = hoje.format(formatter);
         jTextFieldData.setText(dataFormatada);
         jTextFieldHorario.setText(horarioFormatado);
@@ -443,25 +443,30 @@ public class JFrameEntrada extends javax.swing.JFrame {
 
     private void tableEntradaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableEntradaMouseClicked
         // pegando o id do produto da tabela
-        String idProduto = util.pegarIdDaString(
-                util.pegarStringsSelecionadasDaTable(tableEntrada, 2).
-                        get(0));
-        // pegando a data da tabela
-        Date data = Utils.desformatarData( util.pegarStringsSelecionadasDaTable(
-                tableEntrada, 1).
-                get(0) );
-        String apenasHora = new SimpleDateFormat("HH:mm:ss").format(data);
-        String apenasData = new SimpleDateFormat("dd/MM/yyyy").format(data);
+        try {
+            String idProduto = util.pegarIdDaString(
+                    util.pegarStringsSelecionadasDaTable(tableEntrada, 2).
+                            get(0));
+            // pegando a data da tabela
+            Date data = Utils.formatarStringParaData(util.pegarStringsSelecionadasDaTable(
+                    tableEntrada, 1).
+                    get(0));
+            String apenasHora = new SimpleDateFormat("HH:mm:ss").format(data);
+            String apenasData = new SimpleDateFormat("dd/MM/yyyy").format(data);
 
-        // pegando pelo id o DTO para pegar o valor
-        ProdutoController produtoController = new ProdutoController();
-        ProdutoDTO produtoDTO = produtoController.getDTObyId(Integer.parseInt(idProduto));
-        
-        jTextFieldPrecoMedio.setText(produtoDTO.getValor());
-        jTextFieldData.setText(apenasData);
-        jTextFieldHorario.setText(apenasHora);
-        jTextFieldProduto.setText(idProduto);
-        util.tableParaCampos(new Object[]{null, null, null, jComboBoxFornecedor, jTextFieldQuantidade, jTextFieldPrecoTotal}, tableEntrada);
+            // pegando pelo id o DTO para pegar o valor
+            ProdutoController produtoController = new ProdutoController();
+            ProdutoDTO produtoDTO = produtoController.getDTObyId(Integer.parseInt(idProduto));
+
+            jTextFieldPrecoMedio.setText(produtoDTO.getValor());
+            jTextFieldData.setText(apenasData);
+            jTextFieldHorario.setText(apenasHora);
+            jTextFieldProduto.setText(idProduto);
+            util.tableParaCampos(new Object[]{null, null, null, jComboBoxFornecedor, jTextFieldQuantidade, jTextFieldPrecoTotal}, tableEntrada);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+
+        }
     }//GEN-LAST:event_tableEntradaMouseClicked
 
     private void remover(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_remover
@@ -502,8 +507,11 @@ public class JFrameEntrada extends javax.swing.JFrame {
                 String idFornecedor = util.pegarIdDaString(jComboBoxFornecedor.getSelectedItem().toString());
                 String idProduto = jTextFieldProduto.getText().trim();
                 String quantidade = jTextFieldQuantidade.getText().trim();
-
-                if (entradaController.alterar(id, quantidade, idFornecedor, idProduto)) {
+                String data = jTextFieldData.getText().trim();
+                String horario = jTextFieldHorario.getText().trim();
+                String horarioEData = data + " " + horario;
+                if (entradaController.alterar(id, quantidade, idFornecedor, idProduto, horarioEData)) {
+                    JOptionPane.showMessageDialog(null, "Entrada alterada!");
                     resetarCampos();
                 }
             }
@@ -516,7 +524,12 @@ public class JFrameEntrada extends javax.swing.JFrame {
         String idFornecedor = util.pegarIdDaString(jComboBoxFornecedor.getSelectedItem().toString());
         String idProduto = jTextFieldProduto.getText().trim();
         String quantidade = jTextFieldQuantidade.getText().trim();
-        if (entradaController.cadastrar(quantidade, idFornecedor, idProduto)) {
+        String data = jTextFieldData.getText().trim();
+        String horario = jTextFieldHorario.getText().trim();
+        String horarioEData = data + " " + horario;
+
+        if (entradaController.cadastrar(quantidade, idFornecedor, idProduto, horarioEData)) {
+            JOptionPane.showMessageDialog(null, "Entrada cadastrada!");
             resetarCampos();
         }
     }//GEN-LAST:event_enviar
